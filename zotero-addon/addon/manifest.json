@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "Paper Chat",
+  "version": "0.1.0",
+  "description": "Ask Claude about the open PDF. Answers cite the paper; each citation is highlighted in the PDF and links to it.",
+  "author": "Nebula0",
+  "icons": {
+    "48": "icons/chat48.svg",
+    "96": "icons/chat48.svg"
+  },
+  "applications": {
+    "zotero": {
+      "id": "paper-chat@zotero-llm-wiki",
+      "strict_min_version": "7.0",
+      "strict_max_version": "9.*",
+      "update_url": "https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-chat-updates.json"
+    }
+  },
+  "homepage_url": "https://github.com/nebula0/zotero-llm-wiki"
+}

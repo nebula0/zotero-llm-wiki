@@ -1,0 +1,1 @@
+{"manifest_version": 2, "name": "Paper Chat E2E", "version": "0.0.1", "applications": {"zotero": {"id": "paper-chat-e2e@test", "strict_min_version": "7.0", "strict_max_version": "9.*", "update_url": "https://example.invalid/updates.json"}}}

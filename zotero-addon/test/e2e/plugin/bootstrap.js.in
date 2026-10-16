@@ -1,0 +1,187 @@
+const OUT = '__OUT__';
+const PDF = '__PDF__';
+const SHOT = '__SHOT__';
+const FAKE_CC = '__FAKE_CC__';
+
+async function snap(win, path) {
+	const r = win.document.documentElement.getBoundingClientRect();
+	const bmp = await win.browsingContext.currentWindowGlobal.drawSnapshot(new win.DOMRect(0, 0, r.width, r.height), 1, 'white');
+	const canvas = win.document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
+	canvas.width = bmp.width; canvas.height = bmp.height;
+	canvas.getContext('2d').drawImage(bmp, 0, 0);
+	const data = canvas.toDataURL('image/png').split(',')[1];
+	await IOUtils.write(path, Uint8Array.from(atob(data), c => c.charCodeAt(0)));
+}
+function install() {}
+function uninstall() {}
+function shutdown() {}
+function startup() {
+	// Zotero awaits each plugin's startup in turn, so run the test without blocking Paper Chat's
+	runTests();
+}
+async function runTests() {
+	const res = { steps: {} };
+	const step = (name, ok, info) => { res.steps[name] = { ok: !!ok, info }; };
+	try {
+		await Zotero.initializationPromise;
+		await Zotero.uiReadyPromise;
+		for (let i = 0; i < 300 && !Zotero.PaperChat; i++) await Zotero.Promise.delay(100);
+		const PC = Zotero.PaperChat;
+		step('plugin-loaded', !!PC);
+		const win = Zotero.getMainWindow();
+		win.resizeTo(1500, 950);
+		step('ftl-header', true, win.document.l10n ? 'l10n ok' : 'no l10n');
+
+		const parent = new Zotero.Item('journalArticle');
+		parent.setField('title', 'Sparse Attention for Long Documents');
+		await parent.saveTx();
+		const att = await Zotero.Attachments.importFromFile({ file: PDF, parentItemID: parent.id });
+		step('import', !!att, att.key);
+
+		await Zotero.Reader.open(att.id);
+		const s = PC.session(att);
+		await PC.loadState(s);
+		s.doc = await PC.extractDocument(s, () => {});
+		const text = s.doc.doc.text;
+		step('extract', text.includes('The experimental setup uses three public benchmarks'), text);
+		step('page-labels', true, s.doc.pages.map(p => p.label).join(','));
+
+		const a = text.indexOf('Our main finding'), aEnd = text.indexOf('memory.') + 7;
+		const b = text.indexOf('Our experiments only'), bEnd = text.indexOf('parameters.') + 11;
+		const msg = {
+			model: 'fake-model', stop_reason: 'end_turn', usage: { input_tokens: 10, output_tokens: 5 },
+			content: [
+				{ type: 'text', text: '**Main finding:** a 512-token window keeps most of the accuracy.', citations: [{ type: 'char_location', start_char_index: a, end_char_index: aEnd, cited_text: text.slice(a, aEnd) }] },
+				{ type: 'text', text: '\n\n- It only covers English.', citations: [{ type: 'char_location', start_char_index: b, end_char_index: bEnd, cited_text: text.slice(b, bEnd) }] },
+			],
+		};
+		const thread = s.state.threads[0];
+		thread.docHash = s.doc.hash;
+		const turn = await PC.recordAnswer(s, thread, 'What is the main finding?', msg);
+		const anns = att.getAnnotations();
+		step('highlights', anns.length === 2 && turn.cites.every(c => c.highlights.every(h => h.annotationKey)),
+			anns.map(x => ({ text: x.annotationText, color: x.annotationColor, page: x.annotationPageLabel, sort: x.annotationSortIndex, pos: x.annotationPosition, comment: x.annotationComment })));
+		const note = Zotero.Items.getByLibraryAndKey(att.libraryID, s.state.noteKey);
+		step('note', note && note.getNote().includes('zotero://open-pdf/library/items/' + att.key), note && note.getNote());
+		step('state-file', await IOUtils.exists(PC.statePath(att)), PC.statePath(att));
+
+		await Zotero.Promise.delay(2000);
+		const roots = [...win.document.querySelectorAll('.pc-root')];
+		step('ui', roots.length > 0, roots.map(r => ({ text: r.textContent.slice(0, 400), cites: r.querySelectorAll('.pc-cite').length, visible: r.getBoundingClientRect().width })));
+		const header = win.document.querySelector('[data-pane="paper-chat"]') || win.document.querySelector('item-pane-custom-section');
+		step('section-element', !!header, header && header.outerHTML.slice(0, 300));
+
+		await PC.jumpTo(att, turn.cites[1]);
+		await Zotero.Promise.delay(1000);
+		step('jump', true);
+
+		// Screenshots: reader with the context pane open, then the library view
+		try {
+			win.ZoteroContextPane.collapsed = false;
+			await Zotero.Promise.delay(1500);
+			const sec = win.document.querySelector('item-pane-custom-section[data-pane="paper-chat"]') || [...win.document.querySelectorAll('.pc-root')].pop();
+			sec?.scrollIntoView();
+			await Zotero.Promise.delay(800);
+			await snap(win, SHOT);
+			step('tabs', true, win.Zotero_Tabs._tabs.map(t => t.type + ':' + t.title));
+			win.Zotero_Tabs.select('zotero-pane');
+			await win.ZoteroPane.selectItem(parent.id);
+			await Zotero.Promise.delay(1500);
+			const sec2 = [...win.document.querySelectorAll('#zotero-item-pane .pc-root')].pop();
+			sec2?.scrollIntoView();
+			await Zotero.Promise.delay(800);
+			await snap(win, SHOT.replace('.png', '-library.png'));
+			step('screenshot', true);
+		}
+		catch (e) { step('screenshot', false, String(e)); }
+
+		// API path with a bogus key: exercises the bundled SDK, fetch and error mapping
+		Zotero.Prefs.set('extensions.paper-chat.backend', 'api', true);
+		await PC.setApiKey('sk-ant-api03-bogus-key-for-e2e');
+		step('apikey-roundtrip', PC.getApiKey() === 'sk-ant-api03-bogus-key-for-e2e');
+		await PC.ask(att, 'Does this test reach the API?');
+		step('api-error-handled', s.error === PC.t('errAuth'), s.error);
+
+		win.confirm = () => true;
+		await PC.removeTurn(att, turn.n);
+		step('remove', att.getAnnotations().length === 0 && s.state.turns[0].hidden, att.getAnnotations().length);
+		// Full ask() path with a fake API layer: streaming display, history, highlights, second color
+		win.Zotero_Tabs.select(win.Zotero_Tabs._tabs.find(t => t.type === 'reader').id);
+		await Zotero.Promise.delay(1000);
+		const seen = {};
+		const realClaude = PC.claude;
+		PC.claude = Object.assign(Object.create(realClaude), {
+			async ask(opts) {
+				seen.historyLen = opts.history.length;
+				seen.docSame = opts.docText === s.doc.doc.text;
+				seen.model = opts.model;
+				for (const d of ['The window ', 'is varied from 128 ', 'to 2048 tokens.']) {
+					opts.onText(d);
+					await Zotero.Promise.delay(300);
+				}
+				seen.streamed = [...win.document.querySelectorAll('.pc-pending .pc-a')].map(x => x.textContent);
+				const c = text.indexOf('The window size'), cEnd = text.indexOf('2048 tokens.') + 12;
+				return { model: 'fake-model', stop_reason: 'end_turn', usage: { input_tokens: 3, output_tokens: 4 },
+					content: [{ type: 'text', text: 'The window is varied from 128 to 2048 tokens.', citations: [{ type: 'char_location', start_char_index: c, end_char_index: cEnd, cited_text: text.slice(c, cEnd) }] }] };
+			},
+		});
+		await PC.ask(att, 'How big is the window?');
+		PC.claude = realClaude;
+		const t2 = s.state.turns[s.state.turns.length - 1];
+		const anns2 = att.getAnnotations();
+		step('mock-ask', !s.error && t2.n === 2 && t2.color === '#2ea8e5' && anns2.length === 1 && anns2[0].annotationColor === '#2ea8e5'
+			&& seen.historyLen === 2 && seen.docSame && seen.streamed.some(x => x.includes('2048 tokens.')),
+			{ seen, error: s.error, turn: t2.answerMarkdown, anns: anns2.map(a => [a.annotationText, a.annotationColor, a.annotationComment]) });
+		await Zotero.Promise.delay(800);
+		await snap(win, SHOT.replace('.png', '-q2.png'));
+		const noteHTML = Zotero.Items.getByLibraryAndKey(att.libraryID, s.state.noteKey).getNote();
+		step('note-after-remove', !noteHTML.includes('What is the main finding') && noteHTML.includes('How big is the window'));
+		// Claude Code path with a fake `claude` that streams a canned answer with inline ⟦quotes⟧
+		Zotero.Prefs.set('extensions.paper-chat.backend', 'claude-code', true);
+		Zotero.Prefs.set('extensions.paper-chat.ccPath', FAKE_CC + '/claude', true);
+		Zotero.Prefs.set('extensions.paper-chat.ccConfigDir', FAKE_CC + '/config', true);
+		await PC.ask(att, 'What did they find?');
+		const t3 = s.state.turns[s.state.turns.length - 1];
+		const anns3 = att.getAnnotations().filter(a => a.annotationComment.startsWith('Q3'));
+		const args1 = (await IOUtils.readUTF8(FAKE_CC + '/call-1.args')).split('\n');
+		const stdin1 = await IOUtils.readUTF8(FAKE_CC + '/call-1.stdin');
+		const env1 = await IOUtils.readUTF8(FAKE_CC + '/call-1.env');
+		step('cc-ask', !s.error && t3.n === 3 && t3.via === 'claude-code' && t3.cites.length === 3
+			&& anns3.length === 2 && t3.cites[2].highlights.length === 0
+			&& !t3.answerMarkdown.includes('\u27E6') && s.state.threads.length === 2,
+			{ error: s.error, md: t3.answerMarkdown, cites: t3.cites.map(c => [c.citedText, c.highlights.length]), anns: anns3.map(a => a.annotationText), threads: s.state.threads.length });
+		step('cc-args', args1.includes('--tools') && args1[args1.indexOf('--tools') + 1] === '' && !args1.includes('--resume')
+			&& stdin1.startsWith('<paper title="Sparse Attention for Long Documents">') && stdin1.trim().endsWith('What did they find?')
+			&& env1.includes('CLAUDE_CONFIG_DIR=' + FAKE_CC + '/config'), { args: args1.slice(0, 12), env: env1 });
+		await PC.ask(att, 'And the limits?');
+		const args2 = (await IOUtils.readUTF8(FAKE_CC + '/call-2.args')).split('\n');
+		const stdin2 = await IOUtils.readUTF8(FAKE_CC + '/call-2.stdin');
+		step('cc-resume', !s.error && args2[args2.indexOf('--resume') + 1] === 'fake-session-1' && stdin2 === 'And the limits?',
+			{ error: s.error, resume: args2[args2.indexOf('--resume') + 1], stdin2 });
+		await Zotero.Promise.delay(800);
+		await snap(win, SHOT.replace('.png', '-cc.png'));
+
+		// Optional: one real question through the user's own Claude Code login
+		const realConfig = Services.env.get('PAPERCHAT_E2E_CC_CONFIG');
+		if (realConfig) {
+			Zotero.Prefs.set('extensions.paper-chat.ccPath', '', true);
+			Zotero.Prefs.set('extensions.paper-chat.ccConfigDir', realConfig, true);
+			Zotero.Prefs.set('extensions.paper-chat.ccModel', 'haiku', true);
+			Zotero.Prefs.set('extensions.paper-chat.effort', 'low', true);
+			await PC.startNewThread(att);
+			await PC.ask(att, 'What is the main finding, and what are the limitations?');
+			const t5 = s.state.turns[s.state.turns.length - 1];
+			step('cc-real', !s.error && t5.via === 'claude-code' && t5.cites.some(c => c.highlights.length),
+				{ error: s.error, md: t5.answerMarkdown, model: t5.model, cites: t5.cites.map(c => [c.citedText, c.highlights.length]) });
+			await Zotero.Promise.delay(800);
+			await snap(win, SHOT.replace('.png', '-cc-real.png'));
+		}
+	}
+	catch (e) {
+		res.fatal = String(e) + '\n' + (e && e.stack);
+	}
+	await IOUtils.writeJSON(OUT, res);
+	if (!Services.env.get('PAPERCHAT_E2E_KEEP_OPEN')) {
+		Services.startup.quit(Services.startup.eForceQuit);
+	}
+}

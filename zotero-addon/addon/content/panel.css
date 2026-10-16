@@ -1,0 +1,173 @@
+/* Paper Chat item pane section */
+.pc-root {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-size: var(--zotero-font-size, 13px);
+	color: var(--fill-primary);
+}
+.pc-toolbar, .pc-row, .pc-meta {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+.pc-spacer { flex: 1; }
+.pc-btn {
+	padding: 2px 8px;
+	border-radius: 5px;
+	border: 1px solid var(--material-border-quarternary, rgba(0, 0, 0, 0.2));
+	background: var(--material-button, transparent);
+	color: var(--fill-primary);
+	font: inherit;
+	cursor: pointer;
+}
+.pc-btn:disabled { opacity: 0.5; cursor: default; }
+.pc-primary {
+	background: var(--accent-blue, #4072e5);
+	border-color: transparent;
+	color: #fff;
+}
+.pc-link {
+	border: none;
+	background: none;
+	padding: 0;
+	color: var(--accent-blue, #4072e5);
+	font: inherit;
+	cursor: pointer;
+}
+.pc-link:disabled { color: var(--fill-tertiary); cursor: default; }
+.pc-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-height: 60vh;
+	overflow-y: auto;
+	padding-inline-end: 2px;
+}
+.pc-hint, .pc-notice {
+	color: var(--fill-secondary);
+	line-height: 1.45;
+}
+.pc-error {
+	color: var(--accent-red, #db2c3a);
+	line-height: 1.45;
+}
+.pc-divider {
+	text-align: center;
+	color: var(--fill-tertiary);
+	font-size: 0.9em;
+	border-top: 1px dashed var(--fill-quarternary, rgba(0, 0, 0, 0.2));
+	padding-top: 4px;
+}
+.pc-turn {
+	border-inline-start: 4px solid var(--pc-color, var(--fill-quarternary));
+	padding-inline-start: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.pc-pending { --pc-color: var(--fill-quarternary, #ccc); }
+.pc-q {
+	font-weight: 600;
+	line-height: 1.4;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+.pc-badge {
+	display: inline-block;
+	min-width: 1.6em;
+	margin-inline-end: 6px;
+	padding: 0 4px;
+	border-radius: 4px;
+	background: var(--pc-color, var(--fill-quarternary));
+	color: #000;
+	font-size: 0.85em;
+	text-align: center;
+}
+.pc-a {
+	line-height: 1.5;
+	word-break: break-word;
+	user-select: text;
+}
+.pc-a p { margin: 0 0 6px; }
+.pc-a ul, .pc-a ol { margin: 0 0 6px; padding-inline-start: 20px; }
+.pc-a code {
+	font-family: var(--monospace-font, monospace);
+	background: var(--fill-quinary, rgba(0, 0, 0, 0.05));
+	border-radius: 3px;
+	padding: 0 3px;
+}
+.pc-streaming { white-space: pre-wrap; }
+.pc-status { color: var(--fill-secondary); font-style: italic; }
+.pc-cite {
+	display: inline;
+	margin: 0 1px;
+	padding: 0 4px;
+	border: none;
+	border-radius: 4px;
+	background: color-mix(in srgb, var(--pc-color) 45%, transparent);
+	color: var(--fill-primary);
+	font: inherit;
+	font-size: 0.8em;
+	vertical-align: 1px;
+	cursor: pointer;
+}
+.pc-cite:hover { background: var(--pc-color); color: #000; }
+.pc-cite-missing { background: var(--fill-quinary, rgba(0, 0, 0, 0.06)); cursor: help; }
+.pc-meta {
+	font-size: 0.85em;
+	color: var(--fill-tertiary);
+}
+.pc-composer {
+	display: flex;
+	gap: 6px;
+	align-items: flex-end;
+}
+.pc-input {
+	flex: 1;
+	min-height: 3.5em;
+	resize: vertical;
+	font: inherit;
+	padding: 4px 6px;
+	border-radius: 5px;
+	border: 1px solid var(--material-border-quarternary, rgba(0, 0, 0, 0.2));
+	background: var(--material-background, #fff);
+	color: var(--fill-primary);
+}
+.pc-settings {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 8px;
+	border-radius: 6px;
+	background: var(--fill-quinary, rgba(0, 0, 0, 0.04));
+}
+.pc-settings label {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	color: var(--fill-secondary);
+}
+.pc-settings label.pc-check {
+	flex-direction: row;
+	align-items: center;
+	gap: 6px;
+	color: var(--fill-primary);
+}
+.pc-settings .pc-link { align-self: flex-start; }
+.pc-field {
+	font: inherit;
+	padding: 3px 6px;
+	border-radius: 4px;
+	border: 1px solid var(--material-border-quarternary, rgba(0, 0, 0, 0.2));
+	background: var(--material-background, #fff);
+	color: var(--fill-primary);
+}
+.pc-group {
+	margin-top: 4px;
+	padding-top: 6px;
+	border-top: 1px solid var(--fill-quinary, rgba(0, 0, 0, 0.08));
+	font-weight: 600;
+	color: var(--fill-primary);
+}
+.pc-group:empty { padding-top: 0; }

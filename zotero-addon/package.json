@@ -1,0 +1,16 @@
+{
+  "name": "paper-chat-zotero",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Zotero plugin: ask Claude about the open PDF, with highlighted, clickable citations",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "e2e": "test/e2e/run.sh"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "0.131.0",
+    "esbuild": "0.28.2"
+  }
+}
