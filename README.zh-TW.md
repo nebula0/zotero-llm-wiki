@@ -6,7 +6,9 @@
 
 一組讓 Claude 處理你 Zotero 文獻的工具。主力是 **Paper Chat**：一個 Zotero 外掛，打開 PDF 就能在旁邊問 Claude，回答引用的句子會畫在 PDF 上，點頁碼就跳過去。另外有兩個給 [Claude Code](https://claude.com/claude-code) 用的 skill（問論文、找文獻），以及一個搭配 Obsidian 的完整版文獻庫。
 
-<!-- TODO: 示範 GIF，例如 ![demo](docs/demo.gif) -->
+![Zotero 裡的 Paper Chat：左邊是畫好螢光筆的 PDF，右邊是附可點頁碼的回答](docs/images/paper-chat/demo.png)
+
+<sub>範例論文：Becker et al., “Activation Functions in Non-Negative Neural Networks,” *IEEE Access* 13 (2025), [doi:10.1109/ACCESS.2025.3622408](https://doi.org/10.1109/ACCESS.2025.3622408)，[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。截圖經裁切，螢光筆由 Paper Chat 加上。</sub>
 
 ---
 
@@ -42,7 +44,7 @@
 - **Claude Code（用訂閱）**：電腦上裝好並登入 [Claude Code](https://claude.com/claude-code)，費用算在你的 Pro/Max 訂閱裡。安裝方法見[第 1 步](#第-1-步安裝軟體)最後一項。
 - **Anthropic API key（按用量計費）**：到 [platform.claude.com](https://platform.claude.com/settings/keys) 建立，不需要訂閱。
 
-**安裝**
+**安裝**（Windows／macOS 一步一步的說明，包含裝 Claude Code：**[安裝指南](docs/paper-chat-install.zh-TW.md)**）
 
 1. 下載 [paper-chat.xpi](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-chat.xpi)。（如果 Safari 自動把它解壓縮，改用 Chrome 或 Firefox 下載。）
 2. Zotero → 工具 → 外掛 → 右上齒輪 → **從檔案安裝外掛**，選這個 `.xpi`。

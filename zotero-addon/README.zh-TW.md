@@ -22,6 +22,8 @@
 
 ## 安裝
 
+Windows／macOS 一步一步的說明（包含裝 Claude Code）：[安裝指南](../docs/paper-chat-install.zh-TW.md)。
+
 1. 下載 [paper-chat.xpi](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-chat.xpi)，或自己建置（見下方「開發」）。如果 Safari 自動把它解壓縮，改用 Chrome 或 Firefox 下載。
 2. Zotero → 工具 → 外掛 → 右上齒輪 → **從檔案安裝外掛**，選這個 `.xpi`。
 3. 打開任一篇 PDF。右側欄最下面會多一個「問 Claude」區塊；右邊那排小圖示裡也多一個對話泡泡。

@@ -22,6 +22,8 @@ The default, "Automatic", uses Claude Code when it is installed and the API key 
 
 ## Install
 
+Step by step for Windows and macOS, including Claude Code: [installation guide](../docs/paper-chat-install.md).
+
 1. Download [paper-chat.xpi](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-chat.xpi), or build it (see Development). If Safari unzips it automatically, download it with Chrome or Firefox instead.
 2. In Zotero: Tools → Plugins → gear icon → **Install Plugin From File**, and pick the `.xpi`.
 3. Open a PDF. An "Ask Claude" section appears at the bottom of the right-hand pane, with a chat-bubble icon in the strip of icons beside it.

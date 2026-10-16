@@ -6,7 +6,9 @@
 
 Tools that let Claude work with the papers in your Zotero library. The main one is **Paper Chat**, a Zotero plugin: open a PDF and ask Claude about it in the side pane; every passage the answer quotes is highlighted in the PDF, and clicking the page number jumps there. There are also two skills for [Claude Code](https://claude.com/claude-code) (ask about papers, search the literature) and a full version that builds a literature database in Obsidian.
 
-<!-- TODO: demo GIF here — e.g. ![demo](docs/demo.gif) -->
+![Paper Chat in Zotero: the PDF with highlights on the left, the answer with clickable page links on the right](docs/images/paper-chat/demo.png)
+
+<sub>Example paper: Becker et al., “Activation Functions in Non-Negative Neural Networks,” *IEEE Access* 13 (2025), [doi:10.1109/ACCESS.2025.3622408](https://doi.org/10.1109/ACCESS.2025.3622408), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Screenshot cropped; highlights added by Paper Chat.</sub>
 
 ---
 
@@ -42,7 +44,7 @@ A Zotero plugin. Open a PDF and ask Claude about it in the right-hand pane:
 - **Claude Code (your subscription)**: [Claude Code](https://claude.com/claude-code) installed and logged in; usage counts against your Pro/Max plan. See the last item of [Step 1](#step-1-install-the-software) to install it.
 - **An Anthropic API key (pay as you go)**: create one at [platform.claude.com](https://platform.claude.com/settings/keys); no subscription needed.
 
-**Install**
+**Install** (step-by-step for Windows and macOS, including Claude Code: **[installation guide](docs/paper-chat-install.md)**)
 
 1. Download [paper-chat.xpi](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-chat.xpi). (If Safari unzips it automatically, download it with Chrome or Firefox instead.)
 2. In Zotero: Tools → Plugins → gear icon → **Install Plugin From File**, and pick the `.xpi`.
