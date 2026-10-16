@@ -1,7 +1,7 @@
 {
   "name": "paper-chat-zotero",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Zotero plugin: ask Claude about the open PDF, with highlighted, clickable citations",
   "type": "module",
   "scripts": {

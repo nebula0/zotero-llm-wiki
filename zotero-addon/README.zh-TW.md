@@ -76,7 +76,7 @@
 - 掃描檔沒有文字層，要先做 OCR。
 - EPUB 和網頁快照還不支援，只支援 PDF。
 - 側欄的問答紀錄存在本機，換電腦只看得到筆記和螢光筆。
-- 目前只在 macOS 上測過，Windows 支援還在做。
+- 在 macOS 上測過。Windows 應該可以用，但還沒實際測過；Windows 上的 Claude Code 需要 [Git for Windows](https://git-scm.com/downloads/win)。
 
 ## 開發
 

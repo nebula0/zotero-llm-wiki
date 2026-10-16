@@ -64,7 +64,7 @@ var PaperChat = {
 			needSetup: 'Set up Claude Code or an API key to start.',
 			ccNotFound: 'Claude Code was not found. Set its path in Settings, or switch to an API key.',
 			ccNotLoggedIn: 'Claude Code is not logged in for this account. Run `claude` in a terminal and log in, or pick another account in Settings.',
-			ccLimit: 'Your Claude usage limit was reached.', ccFailed: 'Claude Code failed:',
+			ccNeedsGit: 'Claude Code on Windows needs Git for Windows. Install it from https://git-scm.com/downloads/win (default options), then restart Zotero.', ccLimit: 'Your Claude usage limit was reached.', ccFailed: 'Claude Code failed:',
 			viaCC: 'subscription', viaAPI: 'API',
 		},
 		zh: {
@@ -104,7 +104,7 @@ var PaperChat = {
 			needSetup: '先設定 Claude Code 或 API key 才能開始。',
 			ccNotFound: '找不到 Claude Code。請到設定填入路徑，或改用 API key。',
 			ccNotLoggedIn: '這個帳號的 Claude Code 還沒登入。請在終端機執行 `claude` 登入，或到設定選別的帳號。',
-			ccLimit: 'Claude 用量已達上限。', ccFailed: 'Claude Code 執行失敗：',
+			ccNeedsGit: 'Windows 上的 Claude Code 需要 Git for Windows。請到 https://git-scm.com/downloads/win 安裝（選項都用預設），再重新開 Zotero。', ccLimit: 'Claude 用量已達上限。', ccFailed: 'Claude Code 執行失敗：',
 			viaCC: '訂閱', viaAPI: 'API',
 		},
 	},

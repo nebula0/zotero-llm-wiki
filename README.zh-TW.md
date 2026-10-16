@@ -53,7 +53,7 @@
 
 - **整篇 PDF 的文字會送到 Anthropic**，兩種方式都一樣。不要用在不能外傳的文件上。
 - 只送文字，Claude 看不到圖片；掃描檔要先做 OCR。
-- 目前在 **macOS** 上測過。Windows 版還在做。
+- 在 **macOS** 上測過。Windows 應該可以用，但還沒實際測過；Windows 上的 Claude Code 另外需要 [Git for Windows](https://git-scm.com/downloads/win)。在 Windows 上遇到問題，歡迎[開 issue](https://github.com/nebula0/zotero-llm-wiki/issues)。
 
 設定、運作方式、資料存在哪裡：見 [Paper Chat 完整說明](zotero-addon/README.zh-TW.md)。
 

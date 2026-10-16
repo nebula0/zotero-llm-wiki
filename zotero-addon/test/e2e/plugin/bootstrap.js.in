@@ -150,7 +150,7 @@ async function runTests() {
 			&& anns3.length === 2 && t3.cites[2].highlights.length === 0
 			&& !t3.answerMarkdown.includes('\u27E6') && s.state.threads.length === 2,
 			{ error: s.error, md: t3.answerMarkdown, cites: t3.cites.map(c => [c.citedText, c.highlights.length]), anns: anns3.map(a => a.annotationText), threads: s.state.threads.length });
-		step('cc-args', args1.includes('--tools') && args1[args1.indexOf('--tools') + 1] === '' && !args1.includes('--resume')
+		step('cc-args', args1.includes('--tools=') && args1.includes('--system-prompt-file') && !args1.includes('--resume')
 			&& stdin1.startsWith('<paper title="Sparse Attention for Long Documents">') && stdin1.trim().endsWith('What did they find?')
 			&& env1.includes('CLAUDE_CONFIG_DIR=' + FAKE_CC + '/config'), { args: args1.slice(0, 12), env: env1 });
 		await PC.ask(att, 'And the limits?');

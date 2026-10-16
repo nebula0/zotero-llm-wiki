@@ -76,7 +76,7 @@ Follow-up questions carry the earlier Q&A of the conversation (Claude Code resum
 - Scanned PDFs have no text layer; run OCR first.
 - PDF only; EPUB and web snapshots are not supported yet.
 - The conversation in the pane is local; on another computer you see the note and highlights only.
-- Tested on macOS only so far; Windows support is in progress.
+- Tested on macOS. Windows should work but is untested; Claude Code on Windows needs [Git for Windows](https://git-scm.com/downloads/win).
 
 ## Development
 

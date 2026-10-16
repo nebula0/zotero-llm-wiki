@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Paper Chat",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ask Claude about the open PDF. Answers cite the paper; each citation is highlighted in the PDF and links to it.",
   "author": "Nebula0",
   "icons": {

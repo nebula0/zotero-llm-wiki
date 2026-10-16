@@ -44,6 +44,14 @@ Lines like "[Page 5]" in the paper mark where each PDF page begins and give that
 		for (const p of candidatePaths()) {
 			if (await IOUtils.exists(p)) return p;
 		}
+		// On Windows, GUI apps do see the user's PATH
+		const { Subprocess } = ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
+		for (const name of IS_WIN ? ['claude.exe', 'claude.cmd'] : ['claude']) {
+			try {
+				return await Subprocess.pathSearch(name);
+			}
+			catch (e) {}
+		}
 		return null;
 	}
 
@@ -64,16 +72,21 @@ Lines like "[Page 5]" in the paper mark where each PDF page begins and give that
 		return out.sort();
 	}
 
-	function buildArgs({ model, effort, sessionId }) {
+	/**
+	 * Every argument stays a single line with no quotes and none empty: on Windows an empty argument
+	 * is dropped, and a claude.cmd (npm install) runs through cmd.exe, which can't take a multi-line
+	 * prompt. So empty values use --flag= and the system prompt goes in a file.
+	 */
+	function buildArgs({ model, effort, sessionId, systemPromptFile }) {
 		const args = [
 			'-p',
 			'--output-format', 'stream-json', '--verbose', '--include-partial-messages',
 			// No tools, MCP servers, settings or skills: it only reads the paper we send
-			'--tools', '',
+			'--tools=',
 			'--strict-mcp-config',
-			'--setting-sources', '',
+			'--setting-sources=',
 			'--disable-slash-commands',
-			'--system-prompt', SYSTEM,
+			'--system-prompt-file', systemPromptFile,
 		];
 		if (model) args.push('--model', model);
 		if (effort) args.push('--effort', effort);
@@ -96,14 +109,16 @@ Lines like "[Page 5]" in the paper mark where each PDF page begins and give that
 	async function ask({ binary, configDir, workdir, model, effort, docText, title, sessionId, question, onText, signal }) {
 		const { Subprocess } = ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
 		await IOUtils.makeDirectory(workdir, { ignoreExisting: true });
+		const systemPromptFile = PathUtils.join(workdir, 'system-prompt.txt');
+		await IOUtils.writeUTF8(systemPromptFile, SYSTEM);
 		const sep = IS_WIN ? ';' : ':';
-		const extraPath = [PathUtils.parent(binary), '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin'];
+		const extraPath = [PathUtils.parent(binary), ...(IS_WIN ? [] : ['/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin'])];
 		const environment = { PATH: [...extraPath, Services.env.get('PATH')].filter(Boolean).join(sep) };
 		if (configDir) environment.CLAUDE_CONFIG_DIR = configDir;
 
 		const proc = await Subprocess.call({
 			command: binary,
-			arguments: buildArgs({ model, effort, sessionId }),
+			arguments: buildArgs({ model, effort, sessionId, systemPromptFile }),
 			environment,
 			environmentAppend: true,
 			workdir,
@@ -182,6 +197,7 @@ Lines like "[Page 5]" in the paper mark where each PDF page begins and give that
 		if (e.kind === 'aborted') return t('stopped');
 		if (/log ?in|\/login|not logged/i.test(e.detail)) return t('ccNotLoggedIn');
 		if (/usage limit|rate limit|limit reached/i.test(e.detail)) return t('ccLimit') + ' ' + e.detail;
+		if (/git[- ]?bash/i.test(e.detail)) return t('ccNeedsGit');
 		return t('ccFailed') + ' ' + e.detail;
 	}
 

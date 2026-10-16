@@ -53,7 +53,7 @@ A Zotero plugin. Open a PDF and ask Claude about it in the right-hand pane:
 
 - **The whole PDF text is sent to Anthropic**, either way. Don't use it on documents that must not leave your computer.
 - Only text is sent, so Claude can't see figures; scanned PDFs need OCR first.
-- Tested on **macOS** so far. Windows support is in progress.
+- Tested on **macOS**. Windows should work but hasn't been tested yet; there, Claude Code also needs [Git for Windows](https://git-scm.com/downloads/win). If something breaks on Windows, please [open an issue](https://github.com/nebula0/zotero-llm-wiki/issues).
 
 Settings, how it works and where data is stored: see the [Paper Chat guide](zotero-addon/README.md).
 

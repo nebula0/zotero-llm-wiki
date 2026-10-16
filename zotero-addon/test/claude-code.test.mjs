@@ -9,10 +9,12 @@ vm.runInNewContext(src + '\nthis.PaperChatClaudeCode = PaperChatClaudeCode;', ct
 const CC = ctx.PaperChatClaudeCode;
 
 test('a new conversation sends the paper; tools, MCP, settings and skills are off', () => {
-	const args = [...CC.buildArgs({ model: 'haiku', effort: 'low' })];
+	const args = [...CC.buildArgs({ model: 'haiku', effort: 'low', systemPromptFile: '/w/system-prompt.txt' })];
 	assert.deepEqual(args.slice(0, 5), ['-p', '--output-format', 'stream-json', '--verbose', '--include-partial-messages']);
-	assert.equal(args[args.indexOf('--tools') + 1], '');
-	assert.equal(args[args.indexOf('--setting-sources') + 1], '');
+	assert.ok(args.includes('--tools=') && args.includes('--setting-sources='));
+	assert.equal(args[args.indexOf('--system-prompt-file') + 1], '/w/system-prompt.txt');
+	// Windows drops empty arguments and runs claude.cmd through cmd.exe
+	assert.ok(args.every(a => a && !/["\n]/.test(a)), 'every argument is non-empty, one line, unquoted');
 	assert.ok(args.includes('--strict-mcp-config') && args.includes('--disable-slash-commands'));
 	assert.equal(args[args.indexOf('--model') + 1], 'haiku');
 	assert.equal(args[args.indexOf('--effort') + 1], 'low');
@@ -34,6 +36,7 @@ test('errors are explained in user terms', () => {
 	assert.equal(CC.describeError(err('failed', 'Not logged in · Please run /login'), t), 'ccNotLoggedIn');
 	assert.match(CC.describeError(err('failed', 'Claude AI usage limit reached'), t), /^ccLimit /);
 	assert.equal(CC.describeError(err('aborted'), t), 'stopped');
+	assert.equal(CC.describeError(err('failed', 'Claude Code on Windows requires git-bash'), t), 'ccNeedsGit');
 });
 
 test('a </paper> inside the paper text cannot close the paper early', () => {
