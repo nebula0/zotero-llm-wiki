@@ -1,36 +1,69 @@
-# zotero-llm-wiki: Claude Code tools for your research papers
+# zotero-llm-wiki: ask Claude about your papers, right inside Zotero
 
-**Claude Code + Zotero** · ask about your papers with page-cited answers · search the literature · a self-updating literature wiki in Obsidian
+**Zotero + Claude** · ask about a paper inside Zotero, with citations highlighted in the PDF · search the literature · a self-updating literature wiki in Obsidian
 
 **English** ｜ [繁體中文](README.zh-TW.md)
 
-Tools that let [Claude Code](https://claude.com/claude-code) work with the papers in your Zotero library. Claude reads your PDFs and answers with page numbers and quotes, searches the literature with bibliographic data checked against OpenAlex, and, in the full version, files everything into a literature database in Obsidian that keeps itself up to date.
+Tools that let Claude work with the papers in your Zotero library. The main one is **Paper Chat**, a Zotero plugin: open a PDF and ask Claude about it in the side pane; every passage the answer quotes is highlighted in the PDF, and clicking the page number jumps there. There are also two skills for [Claude Code](https://claude.com/claude-code) (ask about papers, search the literature) and a full version that builds a literature database in Obsidian.
 
 <!-- TODO: demo GIF here — e.g. ![demo](docs/demo.gif) -->
 
-It follows Andrej Karpathy's [LLM Wiki idea](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), applied to academic literature. Good fit if you are a grad student or researcher doing a **literature review** and want an AI research assistant whose work you can check.
-
 ---
 
-## Choose your path
+## Choose where to start
 
-Start small and move up when you need more. All three use the same Zotero setup.
-
-| | What Claude does | What you need | How to install |
+| | What it does | What you need | How to install |
 |---|---|---|---|
-| **1. [paper-ask](#path-1-paper-ask-ask-about-papers-in-zotero)** | Reads the PDFs in your Zotero, answers with page numbers and quotes, leaves grey highlights in the PDF, saves notes if you ask | Zotero, Python | Download a zip |
-| **2. [paper-search](#path-2-paper-search-find-literature)** | Searches OpenAlex for papers, marks the ones you already have, adds the ones you pick to Zotero | Python (Zotero optional) | Download a zip |
-| **3. [zotero-llm-wiki](#path-3-the-full-zotero-llm-wiki)** (full version) | All of the above, plus a literature database in Obsidian: one page per paper, search logs, reading progress, AI notes | Zotero, Better BibTeX, Obsidian, Python | Claude Code plugin |
+| **[Paper Chat](#paper-chat-ask-claude-inside-zotero)** (main tool) | Ask about the open PDF in Zotero's side pane; quoted passages become highlights, click `p.5` to jump there; the Q&A is saved as a note | Zotero, plus Claude Code or an Anthropic API key | Download an `.xpi`, install it in Zotero |
+| **[paper-ask](#skill-paper-ask-ask-about-papers-in-zotero)** (skill) | Ask Claude Code about any paper in your Zotero; answers with page numbers and quotes, leaves grey highlights in the PDF | Claude Code, Zotero, Python | Download a zip |
+| **[paper-search](#skill-paper-search-find-literature)** (skill) | Searches OpenAlex for papers, marks the ones you already have, adds the ones you pick to Zotero | Claude Code, Python (Zotero optional) | Download a zip |
+| **[Full version](#the-full-version-zotero-llm-wiki-with-obsidian)** | Both skills, plus a literature database in Obsidian: one page per paper, search logs, reading progress, AI notes | Claude Code, Zotero, Better BibTeX, Obsidian, Python | Claude Code plugin |
 
-Every path needs a paid Claude subscription (Pro or Max) and Claude Code. If you don't have Claude Code yet, the [Claude Code part of Step 1](#step-1-install-the-software) shows how to install it.
+**Not sure? Start with Paper Chat.** It only needs Zotero: no terminal, no Python. When you want Claude to work across several papers or find new ones, add the skills or the full version.
 
-paper-ask and paper-search work well together. The full version already includes both, so install either the skills or the full version, not both.
+- Paper Chat works alongside any of the others.
+- paper-ask and paper-search work well together. The full version already includes both, so install either the skills or the full version, not both.
+- Everything except Paper Chat with an API key needs a paid Claude subscription (Pro or Max) and Claude Code. If you don't have Claude Code yet, the [Claude Code part of Step 1](#step-1-install-the-software) shows how to install it.
 
 ---
 
-## Path 1: paper-ask, ask about papers in Zotero
+## Paper Chat: ask Claude inside Zotero
+
+A Zotero plugin. Open a PDF and ask Claude about it in the right-hand pane:
+
+- **Each question gets its own highlight color**: Q1 yellow, Q2 blue, Q3 green…
+- **Answers quote the paper**: every quoted passage is highlighted in the PDF, in the question's color.
+- **Click `p.5` in an answer to jump there**: the PDF scrolls to that page and selects the highlight.
+- **The Q&A is kept**: reopen the PDF and the past questions are back in the pane; a child note "AI Q&A" holds them too, with links that jump into the PDF.
+- **Ask about a selection**: select text in the PDF and choose "Ask Claude" in the popup.
+
+**You need** Zotero 7–9, plus one of:
+
+- **Claude Code (your subscription)**: [Claude Code](https://claude.com/claude-code) installed and logged in; usage counts against your Pro/Max plan. See the last item of [Step 1](#step-1-install-the-software) to install it.
+- **An Anthropic API key (pay as you go)**: create one at [platform.claude.com](https://platform.claude.com/settings/keys); no subscription needed.
+
+**Install**
+
+1. Download [paper-chat.xpi](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-chat.xpi). (If Safari unzips it automatically, download it with Chrome or Firefox instead.)
+2. In Zotero: Tools → Plugins → gear icon → **Install Plugin From File**, and pick the `.xpi`.
+3. Open any PDF. An "Ask Claude" section appears at the bottom of the right-hand pane; **click the chat bubble in the strip of icons beside it to pin it to the top**.
+4. With Claude Code installed, just ask. To pick one of several Claude Code accounts, or to use an API key, click ⚙︎ in the section.
+
+**Good to know**
+
+- **The whole PDF text is sent to Anthropic**, either way. Don't use it on documents that must not leave your computer.
+- Only text is sent, so Claude can't see figures; scanned PDFs need OCR first.
+- Tested on **macOS** so far. Windows support is in progress.
+
+Settings, how it works and where data is stored: see the [Paper Chat guide](zotero-addon/README.md).
+
+---
+
+## Skill: paper-ask, ask about papers in Zotero
 
 Ask Claude about any paper in your Zotero library. It finds the PDF, reads the relevant pages and answers with page numbers and quotes. It never searches the web and never answers from memory: if the paper isn't in Zotero, it asks you to add it.
+
+How it differs from Paper Chat: Paper Chat asks about the paper you have open, inside Zotero; paper-ask works in a Claude Code chat, so you can compare several papers or ask across your whole library.
 
 - **Grey highlights:** with a Zotero API key set up, Claude highlights the passages it quoted, in grey, so you can check them in Zotero.
 - **Notes, if you want them:** say "save that as a note" once, or "always save notes to <folder>" to keep every answer as a Markdown file.
@@ -62,7 +95,7 @@ To update, download the zip again and run the same unzip command. The `VERSION` 
 
 ---
 
-## Path 2: paper-search, find literature
+## Skill: paper-search, find literature
 
 Ask Claude to find papers on a topic. Every title, author, year, venue and DOI comes from [OpenAlex](https://openalex.org), never from memory, and Claude reads the abstracts before recommending anything.
 
@@ -96,9 +129,11 @@ paper-search and paper-ask work well together: find papers with one, then ask ab
 
 ---
 
-## Path 3: the full zotero-llm-wiki
+## The full version: zotero-llm-wiki with Obsidian
 
 A Claude Code plugin that turns your Zotero library into an **LLM-maintained wiki in Obsidian**. Ask Claude "find literature on X" or "how did this paper run the experiment?" and it searches the literature, reads the PDFs in your Zotero library, answers with page numbers and quotes, and files everything into a literature database that keeps itself up to date.
+
+It follows Andrej Karpathy's [LLM Wiki idea](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), applied to academic literature. Good fit if you are a grad student or researcher doing a **literature review** and want an AI research assistant whose work you can check.
 
 > **Language note:** the full version was built for Traditional Chinese users, so generated pages, folder names and record fields are currently in Chinese. You can talk to Claude in English and it answers in English. A full English version is planned; if you'd use it, please open an issue so I know.
 
@@ -356,13 +391,16 @@ Tell Claude something like "add topic/xxx to the tag vocabulary, meaning …". I
 No. The full version already reads papers and searches the literature, and with both installed Claude can't tell which one to use. If you move up to the full version, delete the `.claude/skills/paper-ask` and `.claude/skills/paper-search` folders.
 
 **Q: I installed zotero-ask earlier. What changed?**
-It's the same skill, renamed paper-ask. Install paper-ask as in [Path 1](#path-1-paper-ask-ask-about-papers-in-zotero), then delete the old `.claude/skills/zotero-ask` folder so Claude doesn't see two copies.
+It's the same skill, renamed paper-ask. Install paper-ask as in [its section](#skill-paper-ask-ask-about-papers-in-zotero), then delete the old `.claude/skills/zotero-ask` folder so Claude doesn't see two copies.
 
 **Q: How do I update the full version?**
 In Claudian, say "update the zotero-llm-wiki plugin: run `claude plugin marketplace update zotero-llm-wiki`, then `claude plugin update zotero-llm-wiki@zotero-llm-wiki`", then restart Obsidian. (If you installed from a ZIP, replace the old folder with a fresh download first.)
 
+**Q: Can I use Paper Chat with the full version?**
+Yes. Paper Chat's highlights and its "AI Q&A" note carry the `paper-chat` tag, and the full version skips them when it infers your reading progress, so they never count as your own highlights. To tell them apart in Zotero: a Paper Chat highlight's comment starts with "Q1: question".
+
 **Q: Does it cost extra?**
-No. It uses your own Claude subscription. Reading a whole paper closely uses more of your quota, so for everyday questions, ask about specific sections.
+No. It uses your own Claude subscription. Reading a whole paper closely uses more of your quota, so for everyday questions, ask about specific sections. Paper Chat reads the whole paper for every question (often 20–40k tokens), so a Pro plan runs down faster; with an API key you pay per use instead, and each answer shows its token count.
 
 ---
 

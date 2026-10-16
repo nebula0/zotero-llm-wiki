@@ -54,6 +54,7 @@ HUMAN_TAG = {f"閱讀/{v}": k for k, v in HUMAN_LEVEL.items()}
 COLOR = {"#ffd400": "🟡", "#ff6666": "🔴", "#5fb236": "🟢", "#2ea8e5": "🔵",
          "#a28ae5": "🟣", "#e56eee": "🟣", "#f19837": "🟠", "#aaaaaa": "⚪"}
 AI_COLOR = "#aaaaaa"
+PAPER_CHAT_TAG = "paper-chat"                                         # Paper Chat 外掛畫的標註和寫的筆記，不算人類閱讀
 TODO_COLORS = {"#a28ae5", "#e56eee"}                                  # 紫 = 待查
 
 def norm_id(s):
@@ -202,7 +203,8 @@ def zotero():
                                            "page": pos.get("pageIndex"), "rects": pos.get("rects"),
                                            "tags": [n for n, _ in tags.get(a, [])]})
     for n, parent, note in q("select itemID, parentItemID, note from itemNotes"):
-        if parent in items and n not in deleted: items[parent]["notes"].append(note_first_line(note))
+        if parent in items and n not in deleted and not any(t == PAPER_CHAT_TAG for t, _ in tags.get(n, [])):
+            items[parent]["notes"].append(note_first_line(note))
     return list(items.values())
 
 def att_file(att):
@@ -296,7 +298,7 @@ def reading_signals(z):
         for a in z["atts"]:
             for an in a["annots"]:
                 is_ai = any(t.startswith("AI/") for t in an["tags"])
-                if an["color"] == AI_COLOR:
+                if an["color"] == AI_COLOR or PAPER_CHAT_TAG in an["tags"]:
                     s["ai"] += 1; continue
                 if is_ai: s["adopted"] += 1
                 s["human"] += 1

@@ -22,7 +22,7 @@
 
 ## 安裝
 
-1. 下載 `paper-chat-<版本>.xpi`，或自己建置（見下方「開發」）。
+1. 下載 [paper-chat.xpi](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-chat.xpi)，或自己建置（見下方「開發」）。如果 Safari 自動把它解壓縮，改用 Chrome 或 Firefox 下載。
 2. Zotero → 工具 → 外掛 → 右上齒輪 → **從檔案安裝外掛**，選這個 `.xpi`。
 3. 打開任一篇 PDF。右側欄最下面會多一個「問 Claude」區塊；右邊那排小圖示裡也多一個對話泡泡。
    **點那個對話泡泡，就能把「問 Claude」固定在右側欄最上面**，Zotero 會記住這個設定。
@@ -39,7 +39,7 @@
 | Claude Code 帳號 | 如果你有好幾個 Claude Code 帳號（`~/.claude`、`~/.claude-work`…），選要用哪一個。預設是 `~/.claude`。 |
 | Claude Code 模型 | 預設跟 Claude Code 的設定一樣；也可以選 Opus、Sonnet、Haiku。 |
 | claude 的路徑 | 通常會自動找到；找不到時再填。 |
-| Anthropic API key | 到 [platform.claude.com](https://platform.claude.com/settings/keys) 建立。存在 Zotero 的密碼管理器裡，不會寫進設定檔。 |
+| Anthropic API key | 到 [platform.claude.com](https://platform.claude.com/settings/keys) 建立。存在 Zotero 的密碼管理器裡，不會寫進設定檔；按「刪除已儲存的 key」可以移除。 |
 | API 模型 | 預設 `claude-opus-5-5`。想省錢可以改 `claude-sonnet-5-5` 或 `claude-haiku-5-5`。 |
 | 思考程度 | `low` 到 `max`，預設 `medium`。越高越仔細，也越慢、越貴。 |
 | 保存問答筆記 | 預設開啟。筆記由外掛自動產生，每次提問都會整篇重寫，手動修改會消失。 |
@@ -76,13 +76,14 @@
 - 掃描檔沒有文字層，要先做 OCR。
 - EPUB 和網頁快照還不支援，只支援 PDF。
 - 側欄的問答紀錄存在本機，換電腦只看得到筆記和螢光筆。
+- 目前只在 macOS 上測過，Windows 支援還在做。
 
 ## 開發
 
 ```bash
 cd zotero-addon
 npm install
-npm run build   # 打包 Anthropic SDK，產生 build/paper-chat-<版本>.xpi
+npm run build   # 打包 Anthropic SDK，產生 build/paper-chat.xpi
 npm test        # 單元測試（文字對應、引用轉螢光筆、Markdown、API 請求格式）
 npm run e2e     # 在獨立的 Zotero 實例裡跑完整流程，不會動到你的文獻庫
 # 再加上用你自己的 Claude Code 帳號真的問一題（會用掉一點訂閱額度）：

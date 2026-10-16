@@ -565,6 +565,8 @@ var PaperChat = {
 			if (att.parentID) note.parentID = att.parentID;
 		}
 		note.setNote(html);
+		// Lets other tools (e.g. zotero-llm-wiki's reading progress) tell this note from the user's own
+		note.addTag(this.TAG);
 		await note.saveTx({ skipSelect: true });
 		state.noteKey = note.key;
 	},

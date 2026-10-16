@@ -1,36 +1,69 @@
-# zotero-llm-wiki：讓 Claude 讀論文、找文獻、整理文獻庫
+# zotero-llm-wiki：在 Zotero 裡問 Claude 論文問題
 
-**Claude Code + Zotero** · 問論文內容，附頁碼回答 · 搜尋文獻 · Obsidian 裡自動更新的文獻庫
+**Zotero + Claude** · 在 Zotero 裡問論文，引用直接畫在 PDF 上 · 搜尋文獻 · Obsidian 裡自動更新的文獻庫
 
 [English](README.md) ｜ **繁體中文**
 
-一組讓 [Claude Code](https://claude.com/claude-code) 處理你 Zotero 文獻的工具：Claude 會讀你的 PDF，回答附頁碼與原句；搜尋文獻時，書目一律從 OpenAlex 查證；完整版還會把結果整理成 Obsidian 裡一個會自動更新的文獻庫。
+一組讓 Claude 處理你 Zotero 文獻的工具。主力是 **Paper Chat**：一個 Zotero 外掛，打開 PDF 就能在旁邊問 Claude，回答引用的句子會畫在 PDF 上，點頁碼就跳過去。另外有兩個給 [Claude Code](https://claude.com/claude-code) 用的 skill（問論文、找文獻），以及一個搭配 Obsidian 的完整版文獻庫。
 
 <!-- TODO: 示範 GIF，例如 ![demo](docs/demo.gif) -->
 
-這個做法來自 Andrej Karpathy 的 [LLM Wiki 構想](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)，用在學術文獻上。適合正在做**文獻回顧**、想要一個「做的事情都查得到依據」的 AI 研究助理的研究生與研究者。
-
 ---
 
-## 選一條路開始
+## 選一個開始
 
-可以先從簡單的開始，需要更多功能再往上換。三條路用的是同一套 Zotero 設定。
-
-| | Claude 會做什麼 | 需要什麼 | 怎麼安裝 |
+| | 做什麼 | 需要什麼 | 怎麼安裝 |
 |---|---|---|---|
-| **1. [paper-ask](#主線-1paper-ask問-zotero-裡的論文)** | 讀你 Zotero 裡的 PDF，附頁碼與原句回答，在 PDF 上畫灰色標註，你要的話存成筆記 | Zotero、Python | 下載 zip |
-| **2. [paper-search](#主線-2paper-search找文獻)** | 用 OpenAlex 搜尋論文，標出你已經有的，把你選的加進 Zotero | Python（Zotero 選用） | 下載 zip |
-| **3. [zotero-llm-wiki](#主線-3完整版-zotero-llm-wiki)**（完整版） | 以上全部，再加上 Obsidian 文獻庫：一篇一頁、搜尋紀錄、閱讀進度、AI 筆記 | Zotero、Better BibTeX、Obsidian、Python | Claude Code 外掛 |
+| **[Paper Chat](#paper-chat在-zotero-裡直接問-claude)**（主力） | 在 Zotero 右側欄問打開的 PDF；引用的句子畫成螢光筆，點 `p.5` 就跳過去；問答存成筆記 | Zotero，加上 Claude Code 或 Anthropic API key | 下載 `.xpi`，在 Zotero 裡安裝 |
+| **[paper-ask](#skillpaper-ask問-zotero-裡的論文)**（skill） | 在 Claude Code 對話裡問 Zotero 裡任何一篇論文，附頁碼與原句，在 PDF 上畫灰色標註 | Claude Code、Zotero、Python | 下載 zip |
+| **[paper-search](#skillpaper-search找文獻)**（skill） | 用 OpenAlex 搜尋論文，標出你已經有的，把你選的加進 Zotero | Claude Code、Python（Zotero 選用） | 下載 zip |
+| **[完整版 zotero-llm-wiki](#完整版zotero-llm-wiki需要-obsidian)** | 兩個 skill 的功能，再加上 Obsidian 文獻庫：一篇一頁、搜尋紀錄、閱讀進度、AI 筆記 | Claude Code、Zotero、Better BibTeX、Obsidian、Python | Claude Code 外掛 |
 
-三條路都需要 Claude 付費訂閱（Pro 或 Max）和 Claude Code。還沒裝 Claude Code 的話，[第 1 步](#第-1-步安裝軟體)裡有安裝方法。
+**不知道選哪個？先裝 Paper Chat。** 它只要 Zotero，不用開終端機、不用裝 Python。之後想讓 Claude 跨好幾篇論文工作或幫你找新文獻，再加裝 skill 或完整版。
 
-paper-ask 和 paper-search 可以一起裝。完整版已經包含這兩個的功能，所以「兩個小 skill」和「完整版」選一種裝就好，不要同時裝。
+- Paper Chat 可以和其他任何一個一起用。
+- paper-ask 和 paper-search 可以一起裝。完整版已經包含這兩個的功能，所以「兩個 skill」和「完整版」選一種就好，不要同時裝。
+- 除了「Paper Chat 用 API key」以外，都需要 Claude 付費訂閱（Pro 或 Max）和 Claude Code。還沒裝 Claude Code 的話，[第 1 步](#第-1-步安裝軟體)裡有安裝方法。
 
 ---
 
-## 主線 1：paper-ask，問 Zotero 裡的論文
+## Paper Chat：在 Zotero 裡直接問 Claude
+
+一個 Zotero 外掛。打開 PDF，在右側欄問 Claude 這篇論文的問題：
+
+- **每個問題有自己的螢光筆顏色**：Q1 黃、Q2 藍、Q3 綠……
+- **回答會引用原文**：引用的句子直接畫在 PDF 上，顏色和問題一致。
+- **點回答裡的 `p.5` 就跳過去**：PDF 捲到那一頁，並選取那段螢光筆。
+- **問答會留下紀錄**：重開 PDF 時側欄會載回過去的問答；項目底下也會有一篇「AI 問答」筆記，裡面的連結點了同樣會跳到 PDF。
+- **選取文字就能問**：在 PDF 上選一段文字，跳出的小選單裡有「問 Claude」。
+
+**需要**：Zotero 7–9，加上下面其中一個：
+
+- **Claude Code（用訂閱）**：電腦上裝好並登入 [Claude Code](https://claude.com/claude-code)，費用算在你的 Pro/Max 訂閱裡。安裝方法見[第 1 步](#第-1-步安裝軟體)最後一項。
+- **Anthropic API key（按用量計費）**：到 [platform.claude.com](https://platform.claude.com/settings/keys) 建立，不需要訂閱。
+
+**安裝**
+
+1. 下載 [paper-chat.xpi](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-chat.xpi)。（如果 Safari 自動把它解壓縮，改用 Chrome 或 Firefox 下載。）
+2. Zotero → 工具 → 外掛 → 右上齒輪 → **從檔案安裝外掛**，選這個 `.xpi`。
+3. 打開任一篇 PDF。右側欄最下面會多一個「問 Claude」區塊；**點右邊那排小圖示裡的對話泡泡，就能把它固定在最上面**。
+4. 有裝 Claude Code 的話直接問就好。有好幾個 Claude Code 帳號、或要用 API key，按區塊裡的 ⚙︎ 設定。
+
+**要知道的事**
+
+- **整篇 PDF 的文字會送到 Anthropic**，兩種方式都一樣。不要用在不能外傳的文件上。
+- 只送文字，Claude 看不到圖片；掃描檔要先做 OCR。
+- 目前在 **macOS** 上測過。Windows 版還在做。
+
+設定、運作方式、資料存在哪裡：見 [Paper Chat 完整說明](zotero-addon/README.zh-TW.md)。
+
+---
+
+## Skill：paper-ask，問 Zotero 裡的論文
 
 問 Claude 你 Zotero 裡任何一篇論文。它會找到 PDF、讀相關的頁面，回答附頁碼與原句。它不會上網搜尋，也不會憑記憶回答：論文不在 Zotero 裡，它會請你先加進去。
+
+和 Paper Chat 的差別：Paper Chat 在 Zotero 裡問「正在看的這一篇」；paper-ask 在 Claude Code 的對話裡用，可以一次比較好幾篇、跨整個文獻庫提問。
 
 - **灰色標註**：設定好 Zotero API 金鑰後，Claude 會把引用的段落在 PDF 上畫成灰色，你在 Zotero 裡就能對照原文。
 - **筆記，需要才存**：說一次「存成筆記」，或說「以後都把筆記存到 ○○ 資料夾」，每次回答都會存成 Markdown 檔。
@@ -62,7 +95,7 @@ paper-ask 和 paper-search 可以一起裝。完整版已經包含這兩個的�
 
 ---
 
-## 主線 2：paper-search，找文獻
+## Skill：paper-search，找文獻
 
 請 Claude 依主題找論文。標題、作者、年份、期刊、DOI 一律從 [OpenAlex](https://openalex.org) 查證，不會憑記憶編造；推薦之前也會先讀過摘要。
 
@@ -96,9 +129,11 @@ paper-search 和 paper-ask 很適合一起用：用一個找論文，再用另�
 
 ---
 
-## 主線 3：完整版 zotero-llm-wiki
+## 完整版：zotero-llm-wiki（需要 Obsidian）
 
 這是給 Claude Code 用的外掛，把你的 Zotero 文獻變成一個**由 AI 維護、放在 Obsidian 裡的 wiki**。裝好之後，你可以在 Obsidian 裡直接跟 Claude 說「幫我找 ○○ 的文獻」、「這篇的實驗怎麼做的？」，Claude 會去搜尋、讀你 Zotero 裡的 PDF，回答附頁碼與原句，再把結果整理成一個會自動更新的文獻庫。
+
+這個做法來自 Andrej Karpathy 的 [LLM Wiki 構想](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)，用在學術文獻上。適合正在做**文獻回顧**、想要一個「做的事情都查得到依據」的 AI 研究助理的研究生與研究者。
 
 ### 它解決什麼問題
 
@@ -354,13 +389,16 @@ Better BibTeX 沒裝好，或那篇還沒產生代碼。在 Zotero 對那篇按�
 不行。完整版本來就會讀論文、搜尋文獻，同時裝的話，Claude 會不知道該用哪一個。換成完整版時，把 `.claude/skills/paper-ask` 和 `.claude/skills/paper-search` 資料夾刪掉。
 
 **Q：我之前裝過 zotero-ask，現在怎麼辦？**
-是同一個 skill，改名叫 paper-ask。照[主線 1](#主線-1paper-ask問-zotero-裡的論文)裝好 paper-ask，再把舊的 `.claude/skills/zotero-ask` 資料夾刪掉，免得 Claude 看到兩份。
+是同一個 skill，改名叫 paper-ask。照 [paper-ask 那一節](#skillpaper-ask問-zotero-裡的論文)裝好 paper-ask，再把舊的 `.claude/skills/zotero-ask` 資料夾刪掉，免得 Claude 看到兩份。
 
 **Q：完整版有新版本。**
 在 Claudian 說「幫我更新 zotero-llm-wiki 外掛：執行 `claude plugin marketplace update zotero-llm-wiki`，再執行 `claude plugin update zotero-llm-wiki@zotero-llm-wiki`」，然後重開 Obsidian。（用壓縮檔安裝的，先用新下載的資料夾取代舊的。）
 
+**Q：Paper Chat 可以和完整版一起用嗎？**
+可以。Paper Chat 畫的螢光筆和寫的「AI 問答」筆記都帶 `paper-chat` 標籤，完整版推斷你的閱讀進度時會跳過它們，所以不會被算成你自己畫的重點。分辨方法：Paper Chat 的螢光筆註解開頭是「Q1：問題」。
+
 **Q：會不會很貴？**
-用的是你自己 Claude 訂閱的額度，沒有額外費用。精讀整篇論文比較耗額度，平常問特定段落就好。
+用的是你自己 Claude 訂閱的額度，沒有額外費用。精讀整篇論文比較耗額度，平常問特定段落就好。Paper Chat 每題都會讀整篇論文（常見 2–4 萬 token），Pro 的額度會用得比較快；改用 API key 的話按用量另外計費，每題的 token 數會顯示在回答下方。
 
 ---
 

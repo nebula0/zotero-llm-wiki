@@ -1,6 +1,6 @@
 {
   "name": "zotero-llm-wiki",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "An LLM wiki for your papers: search literature, read Zotero PDFs with page-cited answers and grey AI highlights, auto-build an Obsidian literature database.（讀論文、整理、搜尋文獻：Claude 幫你搜尋與去重、讀 Zotero 裡的 PDF 並附頁碼回答、在 PDF 上畫灰色 AI 標註，所有結果自動整理成 Obsidian 文獻庫。）",
   "author": {
     "name": "Nebula0"

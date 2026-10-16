@@ -22,7 +22,7 @@ The default, "Automatic", uses Claude Code when it is installed and the API key 
 
 ## Install
 
-1. Download `paper-chat-<version>.xpi`, or build it (see Development).
+1. Download [paper-chat.xpi](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-chat.xpi), or build it (see Development). If Safari unzips it automatically, download it with Chrome or Firefox instead.
 2. In Zotero: Tools → Plugins → gear icon → **Install Plugin From File**, and pick the `.xpi`.
 3. Open a PDF. An "Ask Claude" section appears at the bottom of the right-hand pane, with a chat-bubble icon in the strip of icons beside it.
    **Click the chat bubble to pin "Ask Claude" to the top of the pane**; Zotero remembers this.
@@ -39,7 +39,7 @@ Open settings with ⚙︎:
 | Claude Code account | If you have several Claude Code accounts (`~/.claude`, `~/.claude-work`, …), pick one. Default: `~/.claude`. |
 | Claude Code model | Claude Code's default, or Opus, Sonnet, Haiku. |
 | Path to claude | Found automatically in the usual places; fill it in if not. |
-| Anthropic API key | Create one at [platform.claude.com](https://platform.claude.com/settings/keys). Stored in Zotero's password manager, not in the prefs file. |
+| Anthropic API key | Create one at [platform.claude.com](https://platform.claude.com/settings/keys). Stored in Zotero's password manager, not in the prefs file; "Remove the saved key" deletes it. |
 | API model | `claude-opus-5-5` by default; `claude-sonnet-5-5` or `claude-haiku-5-5` cost less. |
 | Effort | `low` to `max`, default `medium`. Higher is more thorough, slower and more expensive. |
 | Keep a note | On by default. The plugin rewrites the whole note on every question, so edits made there are lost. |
@@ -76,13 +76,14 @@ Follow-up questions carry the earlier Q&A of the conversation (Claude Code resum
 - Scanned PDFs have no text layer; run OCR first.
 - PDF only; EPUB and web snapshots are not supported yet.
 - The conversation in the pane is local; on another computer you see the note and highlights only.
+- Tested on macOS only so far; Windows support is in progress.
 
 ## Development
 
 ```bash
 cd zotero-addon
 npm install
-npm run build   # bundles the Anthropic SDK and writes build/paper-chat-<version>.xpi
+npm run build   # bundles the Anthropic SDK and writes build/paper-chat.xpi
 npm test        # unit tests: text mapping, citations to highlights, Markdown, API request shape
 npm run e2e     # full run in an isolated Zotero instance; your library is not touched
 # also ask one real question through your own Claude Code account (uses a little quota):

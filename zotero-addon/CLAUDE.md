@@ -8,7 +8,7 @@
 cd zotero-addon && npm install && npm run build
 ```
 
-`npm run build` bundles the Anthropic SDK into `addon/lib/anthropic.js` and writes `build/paper-chat-<version>.xpi`. Rebuild after every change; the user installs the `.xpi` in Zotero (Tools → Plugins → gear → Install Plugin From File), and Zotero keeps its own copy in the profile.
+`npm run build` bundles the Anthropic SDK into `addon/lib/anthropic.js` and writes `build/paper-chat.xpi` plus `build/paper-chat-updates.json` (Zotero's update manifest; set `RELEASE_TAG=vX.Y.Z` when building for a release so its link names that tag). Rebuild after every change; the user installs the `.xpi` in Zotero (Tools → Plugins → gear → Install Plugin From File), and Zotero keeps its own copy in the profile.
 
 ## Checking a change
 
