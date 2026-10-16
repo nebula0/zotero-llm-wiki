@@ -84,12 +84,14 @@ Lines like "[Page 5]" in the paper mark where each PDF page begins and give that
 	function buildPrompt({ docText, title, question, sessionId }) {
 		if (sessionId) return question;
 		const safeTitle = String(title || '').replace(/"/g, "'");
-		return `<paper title="${safeTitle}">\n${docText}\n</paper>\n\n${question}`;
+		// A literal </paper> in the paper's text would end the paper early
+		const safeText = String(docText).replace(/<\/paper>/gi, '</ paper>');
+		return `<paper title="${safeTitle}">\n${safeText}\n</paper>\n\n${question}`;
 	}
 
 	/**
 	 * Ask one question. A new conversation sends the paper; a follow-up resumes the session.
-	 * @returns {Promise<{text, sessionId, model, usage}>}
+	 * @returns {Promise<{text, sessionId, model, usage, stopReason}>}
 	 */
 	async function ask({ binary, configDir, workdir, model, effort, docText, title, sessionId, question, onText, signal }) {
 		const { Subprocess } = ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs');
@@ -125,6 +127,7 @@ Lines like "[Page 5]" in the paper mark where each PDF page begins and give that
 			let result = null;
 			let initModel = null;
 			let streamed = '';
+			let stopReason = null;
 			const handle = (line) => {
 				if (!line.trim()) return;
 				let ev;
@@ -138,6 +141,9 @@ Lines like "[Page 5]" in the paper mark where each PDF page begins and give that
 				else if (ev.type === 'stream_event' && ev.event?.type === 'content_block_delta' && ev.event.delta?.type === 'text_delta') {
 					streamed += ev.event.delta.text;
 					onText?.(ev.event.delta.text);
+				}
+				else if (ev.type === 'stream_event' && ev.event?.type === 'message_delta' && ev.event.delta?.stop_reason) {
+					stopReason = ev.event.delta.stop_reason;
 				}
 				else if (ev.type === 'result') result = ev;
 			};
@@ -156,7 +162,7 @@ Lines like "[Page 5]" in the paper mark where each PDF page begins and give that
 			if (!result) throw new ClaudeCodeError('noResult', (stderr || `exit ${exitCode}`).trim().slice(0, 500));
 			if (result.is_error) throw new ClaudeCodeError('failed', String(result.result || result.subtype || '').slice(0, 500));
 			const modelUsed = Object.keys(result.modelUsage || {})[0] || initModel;
-			return { text: result.result ?? streamed, sessionId: result.session_id, model: modelUsed, usage: result.usage };
+			return { text: result.result ?? streamed, sessionId: result.session_id, model: modelUsed, usage: result.usage, stopReason: result.stop_reason || stopReason };
 		}
 		finally {
 			signal?.removeEventListener('abort', onAbort);

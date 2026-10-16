@@ -42,7 +42,7 @@ var PaperChat = {
 			deleteTurn: 'Remove', deleteConfirm: 'Remove Q{0} and its highlights?',
 			tokens: 'in {0} (cached {1}) · out {2}',
 			apiKey: 'Anthropic API key', apiKeySaved: 'saved — leave blank to keep it',
-			getKey: 'Get an API key', model: 'Model', effort: 'Effort', autoNote: 'Keep a note of the Q&A under the item',
+			getKey: 'Get an API key', clearKey: 'Remove the saved key', model: 'Model', effort: 'Effort', autoNote: 'Keep a note of the Q&A under the item',
 			save: 'Save', saved: 'Saved', needKey: 'Add your Anthropic API key to start.',
 			askSelection: 'Ask Claude', notEditable: 'This library is read-only, so no highlights were added.',
 			errAuth: 'The API key was rejected. Check it in Settings.',
@@ -82,7 +82,7 @@ var PaperChat = {
 			deleteTurn: '移除', deleteConfirm: '移除 Q{0} 和它的螢光筆？',
 			tokens: '輸入 {0}（快取 {1}）· 輸出 {2}',
 			apiKey: 'Anthropic API key', apiKeySaved: '已儲存，留空就沿用',
-			getKey: '取得 API key', model: '模型', effort: '思考程度', autoNote: '在項目下保存問答筆記',
+			getKey: '取得 API key', clearKey: '刪除已儲存的 key', model: '模型', effort: '思考程度', autoNote: '在項目下保存問答筆記',
 			save: '儲存', saved: '已儲存', needKey: '先填入 Anthropic API key 才能開始。',
 			askSelection: '問 Claude', notEditable: '這個文獻庫是唯讀的，所以沒有畫螢光筆。',
 			errAuth: 'API key 無效，請到設定檢查。',
@@ -340,8 +340,11 @@ var PaperChat = {
 		const s = this.session(att);
 		question = question.trim();
 		if (!question || s.busy) return;
+		// Claim the session before the first await, so a quick second Enter doesn't ask twice
+		s.busy = true;
 		const backend = await this.resolveBackend();
 		if (!backend.kind) {
+			s.busy = false;
 			s.showSettings = true;
 			await this.detectClaudeCode();
 			s.error = backend.error;
@@ -349,7 +352,6 @@ var PaperChat = {
 			return;
 		}
 		const configDir = this.pref('ccConfigDir') || '';
-		s.busy = true;
 		s.error = null;
 		s.notice = null;
 		s.draft = '';
@@ -412,7 +414,7 @@ var PaperChat = {
 				s.doc.index ||= PaperChatCore.buildMatchIndex(s.doc.doc);
 				msg = {
 					content: PaperChatCore.quotedAnswerToContent(r.text, s.doc.doc, s.doc.index),
-					model: r.model, usage: r.usage, stop_reason: 'end_turn', via: 'claude-code',
+					model: r.model, usage: r.usage, stop_reason: r.stopReason || 'end_turn', via: 'claude-code',
 				};
 			}
 			s.pending = null;
@@ -845,6 +847,10 @@ var PaperChat = {
 			s.showSettings = false;
 			this.refresh(att);
 		};
+		const clearKey = async () => {
+			await this.setApiKey('');
+			this.refresh(att);
+		};
 		return el('div', { class: 'pc-settings' },
 			el('label', null, this.t('backend'), backend),
 			el('div', { class: 'pc-group' }, this.t('ccSection')),
@@ -854,6 +860,7 @@ var PaperChat = {
 			el('label', null, this.t('ccPath'), ccPath),
 			el('div', { class: 'pc-group' }, this.t('apiSection')),
 			el('label', null, this.t('apiKey'), key),
+			hasKey ? el('button', { class: 'pc-link', onclick: clearKey }, this.t('clearKey')) : null,
 			el('button', { class: 'pc-link', onclick: () => Zotero.launchURL('https://platform.claude.com/settings/keys') }, this.t('getKey')),
 			el('label', null, this.t('model'), model, models),
 			el('div', { class: 'pc-group' }),

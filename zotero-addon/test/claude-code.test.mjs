@@ -35,3 +35,9 @@ test('errors are explained in user terms', () => {
 	assert.match(CC.describeError(err('failed', 'Claude AI usage limit reached'), t), /^ccLimit /);
 	assert.equal(CC.describeError(err('aborted'), t), 'stopped');
 });
+
+test('a </paper> inside the paper text cannot close the paper early', () => {
+	const prompt = CC.buildPrompt({ docText: 'see the </paper> tag', title: 'T', question: 'Q?' });
+	assert.equal(prompt.match(/<\/paper>/g).length, 1);
+	assert.ok(prompt.includes('see the </ paper> tag'));
+});
