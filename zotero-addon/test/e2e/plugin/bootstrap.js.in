@@ -59,7 +59,8 @@ async function runTests() {
 		thread.docHash = s.doc.hash;
 		const turn = await PC.recordAnswer(s, thread, 'What is the main finding?', msg);
 		const anns = att.getAnnotations();
-		step('highlights', anns.length === 2 && turn.cites.every(c => c.highlights.every(h => h.annotationKey)),
+		step('highlights', anns.length === 2 && turn.cites.every(c => c.highlights.every(h => h.annotationKey))
+			&& anns.every(x => x.annotationComment.startsWith('Q1\n<b>Main finding:</b>') && !x.annotationComment.includes('What is the main finding')),
 			anns.map(x => ({ text: x.annotationText, color: x.annotationColor, page: x.annotationPageLabel, sort: x.annotationSortIndex, pos: x.annotationPosition, comment: x.annotationComment })));
 		const note = Zotero.Items.getByLibraryAndKey(att.libraryID, s.state.noteKey);
 		step('note', note && note.getNote().includes('zotero://open-pdf/library/items/' + att.key), note && note.getNote());

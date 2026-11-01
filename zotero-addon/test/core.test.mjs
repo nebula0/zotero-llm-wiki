@@ -115,6 +115,15 @@ test('buildNoteHTML lists questions with colored labels and links', () => {
 	assert.doesNotMatch(html, /gone/);
 });
 
+test('buildComment is the question number and the answer, flattened for the reader', () => {
+	const turn = {
+		n: 2, question: 'not shown', answerMarkdown: '## Short answer\n\nIt is **X**1 and `y`2.\n\n- one\n- two',
+		cites: [{ n: 1, highlights: [{ pageLabel: '3' }] }, { n: 2, highlights: [] }],
+	};
+	assert.equal(C.buildComment(turn), 'Q2\n<b>Short answer</b>\n\nIt is <b>X</b> [p.3] and y [2].\n\n• one\n• two');
+	assert.equal(C.buildComment(turn, 10), 'Q2\n<b>Sho…');
+});
+
 test('colorFor cycles and hashText changes with content', () => {
 	assert.equal(C.colorFor(1), '#ffd400');
 	assert.equal(C.colorFor(8), '#ffd400');
