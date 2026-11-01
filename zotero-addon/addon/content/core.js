@@ -342,6 +342,39 @@ var PaperChatCore = (function () {
 		}).join('\n');
 	}
 
+	function inlineToComment(nodes, citeText) {
+		return nodes.map((n) => {
+			switch (n.t) {
+				case 'text': return n.v;
+				case 'b': return `<b>${inlineToComment(n.c, citeText)}</b>`;
+				case 'i': return `<i>${inlineToComment(n.c, citeText)}</i>`;
+				case 'code': return n.v;
+				case 'cite': return citeText(n.n);
+			}
+			return '';
+		}).join('');
+	}
+
+	/**
+	 * Comment for a turn's highlights: "Q2" and the answer. The reader shows comments as plain text
+	 * with only <b>, <i>, <sub> and <sup> recognized, so Markdown is flattened to that.
+	 */
+	function buildComment(turn, maxLength = 10000) {
+		const citeText = (n) => {
+			const cite = turn.cites.find(c => c.n === n);
+			if (!cite) return '';
+			const hl = cite.highlights && cite.highlights[0];
+			return hl ? ` [p.${hl.pageLabel}]` : ` [${n}]`;
+		};
+		const body = parseMarkdown(turn.answerMarkdown || '').map((b) => {
+			if (b.type === 'p') return inlineToComment(b.inline, citeText);
+			if (b.type === 'h') return `<b>${inlineToComment(b.inline, citeText)}</b>`;
+			return b.items.map((it, i) => (b.type === 'ol' ? `${i + 1}. ` : '• ') + inlineToComment(it, citeText)).join('\n');
+		}).join('\n\n').replace(/ +\[/g, ' [');
+		const comment = `Q${turn.n}\n${body}`;
+		return comment.length > maxLength ? comment.slice(0, maxLength - 1) + '…' : comment;
+	}
+
 	/** Translucent version of a #rrggbb color, for note backgrounds */
 	function tint(hex, alpha) {
 		const v = parseInt(hex.slice(1), 16);
@@ -390,7 +423,7 @@ var PaperChatCore = (function () {
 	return {
 		COLORS, colorFor, buildDocument, rectsFromChars, rangeToHighlights, collectAnswer,
 		buildMatchIndex, findQuote, quotedAnswerToContent, streamingDisplay,
-		parseInline, parseMarkdown, markdownToHTML, escapeHTML, buildNoteHTML, hashText, tint,
+		parseInline, parseMarkdown, markdownToHTML, escapeHTML, buildNoteHTML, buildComment, hashText, tint,
 	};
 })();
 

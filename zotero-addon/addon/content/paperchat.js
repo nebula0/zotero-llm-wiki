@@ -491,7 +491,7 @@ var PaperChat = {
 			s.notice = this.t('notEditable');
 			return;
 		}
-		const comment = `Q${turn.n}: ${turn.question}`.slice(0, 1000);
+		const comment = PaperChatCore.buildComment(turn);
 		for (const cite of turn.cites) {
 			for (const hl of cite.highlights) {
 				const key = Zotero.DataObjectUtilities.generateKey();
